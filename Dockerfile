@@ -22,6 +22,11 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=private \
     mkdir -p /install && \
     cp -av /build-root/*.deb /install && \
     git config --global --add safe.directory /src
+RUN apt-get update && \
+    apt-get install -y tcpdump \
+    iproute2\
+    net-tools\
+    iputils-ping
 
 # this stage is used to copy out the debs
 FROM scratch as artifacts
@@ -30,6 +35,12 @@ COPY --from=build-stage /src/build-root/*.deb .
 
 # final image starts here
 FROM ${BASE} as final-stage
+
+RUN apt-get update && \
+    apt-get install -y tcpdump \
+    iproute2\
+    net-tools\
+    iputils-ping
 
 RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=private \
     --mount=target=/var/cache/apt,type=cache,sharing=private \
